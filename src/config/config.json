@@ -1,0 +1,6 @@
+ {
+    "COINS": [
+        "BTC", "ETH", "USDT", "BNB", "SOL"
+    ],
+    "DATA_ENTRY_COUNT": 20
+ }
