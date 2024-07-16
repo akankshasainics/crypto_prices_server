@@ -1,9 +1,10 @@
-const {coins} = require('../config/config.json');
+const {COINS} = require("../config/config");
+const {insertPrices} = require("../dataAccess/cryptoRespository");
 
 
 const fetchCoinData = async() => {
     const promises = [];
-    for(var coin of coins){
+    for(var coin of COINS){
         const promise = fetch(new Request("https://api.livecoinwatch.com/coins/single"), {
             method: "POST",
             headers: new Headers({
@@ -18,10 +19,9 @@ const fetchCoinData = async() => {
           }).then(response => response.json()); 
           promises.push(promise);
     }
-    Promise.all(promises).then(results => {
-      console.log(results);
+    Promise.all(promises).then(async results => {
+      await insertPrices(results);
     })
-
 } 
 
 module.exports = {

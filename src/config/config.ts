@@ -1,6 +1,8 @@
- {
+module.exports =  {
     "COINS": [
         "BTC", "ETH", "USDT", "BNB", "SOL"
     ],
-    "DATA_ENTRY_COUNT": 20
+    "STOCK_ENTRY_LIMIT": 20
  }
+
+

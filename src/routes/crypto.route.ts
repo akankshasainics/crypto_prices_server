@@ -1,9 +1,10 @@
+const express = require('express');
+const router = express.Router();
+const priceController = require("../controller/price.controller");
 
-// app.get("/coins", (req, res) => {
-//   res.json({ message: "Hello there!" });
-// });
+
+router.get('/',  priceController.getNames);
+router.get('/:name', priceController.getCoinPrices);
 
 
-// app.get("/coin/{coin}", (req, res) => {
-//   res.json({ message: "Hello there!" });
-// });
+module.exports = router;
