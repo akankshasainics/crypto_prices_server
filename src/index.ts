@@ -7,6 +7,7 @@ const mongoose  = require("mongoose");
 const routeManager = require("./routes/route.manager");
 const {fetchCoinData} = require("./services/priceDataService");
 const {findPrices} = require("./dataAccess/cryptoRespository")
+const {MONGO_DB_STRING} = require("./config/config")
 const PORT = process.env.port || 8000;
 let selectedStock = null;
 let socketConnection = null;
@@ -19,10 +20,9 @@ routeManager(app);
 
 //connect to db
 mongoose.set("strictQuery", false);
-const mongoDB = "mongodb://127.0.0.1:27017/test";
 main().catch((err) => console.log(err));
 async function main() {
-  await mongoose.connect(mongoDB);
+  await mongoose.connect(MONGO_DB_STRING);
   console.log("connected to db");
 }
 
