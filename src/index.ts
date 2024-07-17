@@ -1,13 +1,13 @@
-require('dotenv').config();
+require("dotenv").config();
 const cors = require("cors");
-const http = require('http');
-import WebSocket from 'ws';
+const http = require("http");
 const express = require("express");
 const mongoose = require("mongoose");
 const routeManager = require("./routes/route.manager");
 const { fetchCoinData } = require("./services/priceDataService");
 const { findPrices } = require("./dataAccess/cryptoRespository")
 const { MONGO_DB_STRING } = require("./config/config")
+import WebSocket from "ws";
 const PORT = process.env.port || 8000;
 let selectedStock: string | null = null;
 let socketConnection: WebSocket | null = null;
@@ -75,4 +75,7 @@ export const sendUpdatedData = async () => {
   }
 }
 
-setInterval(function () { fetchCoinData(); sendUpdatedData() }, 5000);
+setInterval(function () { 
+  fetchCoinData(); 
+  sendUpdatedData(); 
+}, 5000);
