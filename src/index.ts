@@ -1,16 +1,16 @@
 require('dotenv').config();
 const cors = require("cors");
 const http = require('http');
-const WebSocket = require('ws');
+import WebSocket from 'ws';
 const express = require("express");
-const mongoose  = require("mongoose");
+const mongoose = require("mongoose");
 const routeManager = require("./routes/route.manager");
-const {fetchCoinData} = require("./services/priceDataService");
-const {findPrices} = require("./dataAccess/cryptoRespository")
-const {MONGO_DB_STRING} = require("./config/config")
+const { fetchCoinData } = require("./services/priceDataService");
+const { findPrices } = require("./dataAccess/cryptoRespository")
+const { MONGO_DB_STRING } = require("./config/config")
 const PORT = process.env.port || 8000;
-let selectedStock = null;
-let socketConnection = null;
+let selectedStock: string | null = null;
+let socketConnection: WebSocket | null = null;
 
 const app = express();
 app.use(cors());
@@ -27,20 +27,19 @@ async function main() {
 }
 
 
-
 const server = http.createServer(app).listen(PORT, () => {
   console.log('server is running on 8000')
 });
 
 // web socket connection
 const wss = new WebSocket.Server({ server });
-wss.on('connection', (ws) => {
+wss.on('connection', (ws: WebSocket) => {
   socketConnection = ws;
   console.log('New client connected');
 
-  ws.on('message', async (name) => {
+  ws.on('message', async (name: Buffer) => {
     selectedStock = name.toString();
-    const result = await findPrices(name.toString());
+    const result: [object] = await findPrices(name.toString());
     ws.send(JSON.stringify(result));
   });
 
@@ -53,28 +52,27 @@ wss.on('connection', (ws) => {
 app.use(function (err, req, res, next) {
   console.error(err.stack)
   res.status(500).json({
-      status: false,
-      code  : 500,
-      error : `Can't find ${err.stack}`
+    status: false,
+    code: 500,
+    error: `Can't find ${err.stack}`
   });
 });
 
 // 404 handler
 app.use(function (req, res, next) {
   res.status(404).json({
-      status: false,
-      code  : 404,
-      error : `Can't find ${req.originalUrl}`
+    status: false,
+    code: 404,
+    error: `Can't find ${req.originalUrl}`
   });
 });
 
 
-export const sendUpdatedData = async() => {
-  if(selectedStock != null && socketConnection != null)
-    {
-      const result = await findPrices(selectedStock);
-      socketConnection.send(JSON.stringify(result));
-    }
+export const sendUpdatedData = async () => {
+  if (selectedStock != null && socketConnection != null) {
+    const result: [object] = await findPrices(selectedStock);
+    socketConnection.send(JSON.stringify(result));
+  }
 }
 
-setInterval(function() {fetchCoinData(); sendUpdatedData()}, 5000);
+setInterval(function () { fetchCoinData(); sendUpdatedData() }, 5000);

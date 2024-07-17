@@ -1,5 +1,16 @@
 {
-    "compilerOptions": {
-      "moduleDetection": "force"
-    }
-  }   
+  "compilerOptions": {
+    "moduleDetection": "force",
+    "jsx": "react",
+    "pretty": true,
+    "module": "NodeNext",
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "NodeNext"
+  },
+  "include": [
+    "./src"
+  ],
+  "exclude": [
+    "./node_modules"
+  ]
+}

@@ -1,11 +1,11 @@
-const {CryptoPrices} = require("../models/cryptoModel");
+const { CryptoPrices } = require("../models/cryptoModel");
 const { STOCK_LIMIT } = require("../config/config");
 
 /**
  * insert multiple prices into collection 
  * @param priceJson 
  */
-const insertPrices = async(priceArray: [JSON]) => {
+const insertPrices = async (priceArray: [JSON]) => {
     await CryptoPrices.insertMany(priceArray);
 }
 
@@ -14,8 +14,8 @@ const insertPrices = async(priceArray: [JSON]) => {
  * @param name  
  * @returns 
  */
-const findPrices = async(name: String) => {
-    const result = await CryptoPrices.aggregate([
+const findPrices = async (name: String) => {
+    return await CryptoPrices.aggregate([
         {
             $match: {
                 name: name
@@ -37,15 +37,14 @@ const findPrices = async(name: String) => {
             }
         }
     ])
-    return result;
 }
 
 /**
  * get all the names from db 
  * @returns 
  */
-const findNames = async() => {
-    const result = await CryptoPrices.aggregate([
+const findNames = async () => {
+    const result: [{ _id: string }] = await CryptoPrices.aggregate([
         {
             $match: {
                 name: {
@@ -59,7 +58,8 @@ const findNames = async() => {
             }
         }
     ]);
-    return result.map((r: JSON) => r["_id"]); }
+    return result.map((r: { _id: string }) => r._id);
+}
 
 module.exports = {
     insertPrices,
