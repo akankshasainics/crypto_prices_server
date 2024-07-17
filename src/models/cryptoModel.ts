@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const schemaOptions = {
     timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
     capped: {
-        size: 1048576*10, // 1MB size limit
+        size: 1048576*10, // 10MB size limit
     }
   };
 

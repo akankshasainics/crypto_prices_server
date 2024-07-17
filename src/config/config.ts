@@ -2,7 +2,7 @@ module.exports =  {
     "COINS": [
         "BTC", "ETH", "USDT", "BNB", "SOL"
     ],
-    "STOCK_ENTRY_LIMIT": 20
+    "STOCK_LIMIT": 20
  }
 
 

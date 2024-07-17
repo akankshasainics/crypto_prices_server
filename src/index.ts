@@ -1,28 +1,53 @@
 require('dotenv').config();
-const express = require("express");
 const cors = require("cors");
+const http = require('http');
+const WebSocket = require('ws');
+const express = require("express");
 const mongoose  = require("mongoose");
-const app = express();
-const {fetchCoinData} = require("./services/priceDataService");
 const routeManager = require("./routes/route.manager");
+const {fetchCoinData} = require("./services/priceDataService");
+const {findPrices} = require("./dataAccess/cryptoRespository")
+const PORT = process.env.port || 8000;
+let selectedStock = null;
+let socketConnection = null;
 
-
+const app = express();
 app.use(cors());
 app.use(express.json());
-
-mongoose.set("strictQuery", false);
 routeManager(app);
 
-// Define the database URL to connect to.
-const mongoDB = "mongodb://127.0.0.1:27017/test";
 
-// Wait for database to connect, logging an error if there is a problem
+//connect to db
+mongoose.set("strictQuery", false);
+const mongoDB = "mongodb://127.0.0.1:27017/test";
 main().catch((err) => console.log(err));
 async function main() {
   await mongoose.connect(mongoDB);
   console.log("connected to db");
 }
 
+
+
+const server = http.createServer(app).listen(PORT, () => {
+  console.log('server is running on 8000')
+});
+
+// web socket connection
+const wss = new WebSocket.Server({ server });
+wss.on('connection', (ws) => {
+  socketConnection = ws;
+  console.log('New client connected');
+
+  ws.on('message', async (name) => {
+    selectedStock = name.toString();
+    const result = await findPrices(name.toString());
+    ws.send(JSON.stringify(result));
+  });
+
+  ws.on('close', () => {
+    console.log('Client disconnected');
+  });
+});
 
 // error handler
 app.use(function (err, req, res, next) {
@@ -44,11 +69,12 @@ app.use(function (req, res, next) {
 });
 
 
+export const sendUpdatedData = async() => {
+  if(selectedStock != null && socketConnection != null)
+    {
+      const result = await findPrices(selectedStock);
+      socketConnection.send(JSON.stringify(result));
+    }
+}
 
-app.listen(8000, () => {
-  console.log(`Server is running on port 8000.`);
-});
-
-setInterval(fetchCoinData, 5000); //every 5 second
-
-
+setInterval(function() {fetchCoinData(); sendUpdatedData()}, 5000);
