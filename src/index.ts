@@ -9,8 +9,7 @@ const { findPrices } = require("./dataAccess/cryptoRespository")
 const { MONGO_DB_STRING } = require("./config/config")
 import WebSocket from "ws";
 const PORT = process.env.port || 8000;
-let selectedStock: string | null = null;
-let socketConnection: WebSocket | null = null;
+let connections = []; // number of client connections
 
 const app = express();
 app.use(cors());
@@ -34,11 +33,14 @@ const server = http.createServer(app).listen(PORT, () => {
 // web socket connection
 const wss = new WebSocket.Server({ server });
 wss.on('connection', (ws: WebSocket) => {
-  socketConnection = ws;
   console.log('New client connected');
+  connections.push({ client: ws, stock: null });
 
   ws.on('message', async (name: Buffer) => {
-    selectedStock = name.toString();
+    const index = connections.findIndex(conn => conn.client === ws);
+    if (index != -1) {
+      connections[index].stock = name.toString();
+    }
     const result: [object] = await findPrices(name.toString());
     ws.send(JSON.stringify(result));
   });
@@ -69,13 +71,16 @@ app.use(function (req, res, next) {
 
 
 export const sendUpdatedData = async () => {
-  if (selectedStock != null && socketConnection != null) {
-    const result: [object] = await findPrices(selectedStock);
-    socketConnection.send(JSON.stringify(result));
+  for (var connection of connections) {
+    const { stock, client } = connection;
+    if (stock != null && client != null) {
+      const result: [object] = await findPrices(stock);
+      client.send(JSON.stringify(result));
+    }
   }
 }
 
-setInterval(function () { 
-  fetchCoinData(); 
-  sendUpdatedData(); 
+setInterval(function () {
+  fetchCoinData();
+  sendUpdatedData();
 }, 5000);
